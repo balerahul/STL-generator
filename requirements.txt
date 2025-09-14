@@ -1,0 +1,19 @@
+# Core dependencies
+numpy>=1.18.0
+
+# Optional triangulation backends
+# Uncomment based on your needs:
+
+# For better triangulation performance:
+# mapbox_earcut>=1.0.0
+
+# For complex polygon operations:
+# trimesh>=3.0.0
+# shapely>=1.7.0
+
+# Development dependencies (install with: pip install -e ".[dev]")
+# pytest>=6.0
+# pytest-cov>=2.10
+# black>=21.0
+# flake8>=3.8
+# mypy>=0.800
