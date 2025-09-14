@@ -112,23 +112,26 @@ def _triangulate_with_trimesh(outer_vertices: np.ndarray, inner_vertices_cw: np.
 
 def _triangulate_ring_manual(outer_vertices: np.ndarray, inner_vertices_cw: np.ndarray) -> np.ndarray:
     """
-    Manual triangulation by connecting outer and inner vertices.
-    This creates a simple fan triangulation.
+    Manual triangulation for a rectangle with rectangular hole.
+    Creates triangles that form a frame between outer and inner boundaries.
     """
     triangles = []
 
-    # Connect each outer edge to corresponding inner vertices
+    # For each side of the rectangle, create two triangles connecting outer to inner
+    # This creates a "frame" without filling the hole
+
     for i in range(4):
         next_i = (i + 1) % 4
 
-        # Outer edge: outer[i] -> outer[next_i]
-        # Connect to inner vertices to form triangles
+        # Outer vertices: 0,1,2,3 (CCW)
+        # Inner vertices: 4,5,6,7 (CW, so reversed order)
 
-        # Triangle 1: outer[i] -> outer[next_i] -> inner[i]
-        triangles.append([i, next_i, 4 + i])
+        # For each edge, create two triangles that form the frame segment
+        # Triangle 1: outer[i] -> inner[i] -> outer[next_i]
+        triangles.append([i, 4 + i, next_i])
 
-        # Triangle 2: outer[next_i] -> inner[next_i] -> inner[i]
-        triangles.append([next_i, 4 + next_i, 4 + i])
+        # Triangle 2: outer[next_i] -> inner[i] -> inner[next_i]
+        triangles.append([next_i, 4 + i, 4 + next_i])
 
     return np.array(triangles)
 

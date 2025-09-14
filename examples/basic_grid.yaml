@@ -2,9 +2,9 @@
 # Generate a simple rectangular grid with relative hole sizes
 
 grid:
-  nx: 3      # 3 cells along u-axis
+  nx: 2      # 3 cells along u-axis
   ny: 2      # 2 cells along v-axis
-  W: 15.0    # Total width: 15 units
+  W: 10.0    # Total width: 15 units
   H: 10.0    # Total height: 10 units
 
 orientation:
@@ -13,8 +13,8 @@ orientation:
   rotate_deg: 0.0       # No rotation
 
 inner_rectangle:
-  sx: 0.7               # Inner hole is 70% of cell width
-  sy: 0.7               # Inner hole is 70% of cell height
+  sx: 0.5               # Inner hole is 70% of cell width
+  sy: 0.5               # Inner hole is 70% of cell height
   inner_size_mode: relative
 
 placement:
