@@ -27,7 +27,7 @@ class STLGridGenerator:
                  rotate_deg: float = 0.0,
                  border_gap: float = 0.0,
                  out_dir: str = 'output',
-                 cell_filename_outer: str = 'cell_{i}_{j}_outer.stl',
+                 cell_filename_outer: str = 'cell_{i}_{j}_inner.stl',
                  cell_filename_ring: str = 'cell_{i}_{j}_ring.stl',
                  stl_ascii: bool = False):
         """
@@ -44,7 +44,7 @@ class STLGridGenerator:
             rotate_deg: In-plane rotation in degrees
             border_gap: Gap to shrink cell bounds
             out_dir: Output directory
-            cell_filename_outer: Filename pattern for outer rectangles
+            cell_filename_outer: Filename pattern for inner rectangles
             cell_filename_ring: Filename pattern for rings
             stl_ascii: True for ASCII STL, False for binary
         """
@@ -97,7 +97,7 @@ class STLGridGenerator:
 
         for i in range(self.nx):
             for j in range(self.ny):
-                # Generate outer rectangle
+                # Generate inner rectangle
                 self._generate_cell_outer(i, j)
                 files_generated += 1
 
@@ -108,16 +108,22 @@ class STLGridGenerator:
         return files_generated
 
     def _generate_cell_outer(self, i: int, j: int):
-        """Generate outer rectangle STL for cell (i, j)."""
+        """Generate inner rectangle STL for cell (i, j)."""
         # Compute cell bounds
         u0, u1, v0, v1 = compute_cell_bounds(i, j, self.nx, self.ny, self.W, self.H, self.border_gap)
 
-        # Create rectangle vertices in local coordinates
-        center = ((u0 + u1) / 2, (v0 + v1) / 2)
-        half_width = (u1 - u0) / 2
-        half_height = (v1 - v0) / 2
+        # Outer rectangle parameters
+        outer_center = ((u0 + u1) / 2, (v0 + v1) / 2)
+        outer_half_width = (u1 - u0) / 2
+        outer_half_height = (v1 - v0) / 2
 
-        vertices_2d = create_rectangle_vertices(center, half_width, half_height)
+        # Inner rectangle (the hole)
+        inner_half_width, inner_half_height = compute_inner_rectangle_size(
+            outer_half_width, outer_half_height, self.sx, self.sy, self.inner_size_mode
+        )
+
+        # Create inner rectangle vertices
+        vertices_2d = create_rectangle_vertices(outer_center, inner_half_width, inner_half_height)
 
         # Convert to 3D world coordinates
         vertices_3d = np.array([
