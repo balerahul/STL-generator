@@ -144,11 +144,11 @@ def generate_example_config(output_path: str):
             'out_dir': 'output',
             'cell_filename_outer': 'cell_{i}_{j}_outer.stl',
             'cell_filename_ring': 'cell_{i}_{j}_ring.stl',
-            'stl_ascii': false,
+            'stl_ascii': False,
         },
         'options': {
-            'verbose': false,
-            'info_only': false,
+            'verbose': False,
+            'info_only': False,
         }
     }
 
