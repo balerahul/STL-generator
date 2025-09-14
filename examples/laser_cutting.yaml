@@ -1,0 +1,32 @@
+# Laser cutting template example
+# 4x3 grid of 20x15mm rectangles with 14x10mm centered holes
+
+grid:
+  nx: 4       # 4 cells wide
+  ny: 3       # 3 cells tall
+  W: 80.0     # Total width: 80mm
+  H: 45.0     # Total height: 45mm
+
+orientation:
+  orientation: z        # Z-normal (flat cutting plane)
+  normal_sign: 1        # Positive Z
+  rotate_deg: 0.0       # No rotation
+
+inner_rectangle:
+  sx: 14.0              # 14mm hole width
+  sy: 10.0              # 10mm hole height
+  inner_size_mode: absolute  # Absolute dimensions
+
+placement:
+  origin: [0.0, 0.0, 0.0]    # Centered placement
+  border_gap: 0.5            # 0.5mm border gap for better separation
+
+output:
+  out_dir: laser_parts
+  cell_filename_outer: laser_outer_{i}_{j}.stl
+  cell_filename_ring: laser_ring_{i}_{j}.stl
+  stl_ascii: true            # ASCII for easier inspection
+
+options:
+  verbose: true
+  info_only: false

@@ -41,6 +41,7 @@ setup(
     python_requires=">=3.7",
     install_requires=[
         "numpy>=1.18.0",
+        "PyYAML>=5.4.0",
     ],
     extras_require={
         "earcut": ["mapbox_earcut>=1.0.0"],

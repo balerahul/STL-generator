@@ -1,0 +1,32 @@
+# Basic 3x2 grid example
+# Generate a simple rectangular grid with relative hole sizes
+
+grid:
+  nx: 3      # 3 cells along u-axis
+  ny: 2      # 2 cells along v-axis
+  W: 15.0    # Total width: 15 units
+  H: 10.0    # Total height: 10 units
+
+orientation:
+  orientation: z        # Z-normal plane (XY plane)
+  normal_sign: 1        # Positive Z direction
+  rotate_deg: 0.0       # No rotation
+
+inner_rectangle:
+  sx: 0.7               # Inner hole is 70% of cell width
+  sy: 0.7               # Inner hole is 70% of cell height
+  inner_size_mode: relative
+
+placement:
+  origin: [0.0, 0.0, 0.0]  # Centered at world origin
+  border_gap: 0.0          # No border gap
+
+output:
+  out_dir: output
+  cell_filename_outer: cell_{i}_{j}_outer.stl
+  cell_filename_ring: cell_{i}_{j}_ring.stl
+  stl_ascii: false         # Binary STL format
+
+options:
+  verbose: false
+  info_only: false

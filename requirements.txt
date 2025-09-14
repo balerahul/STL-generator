@@ -1,5 +1,6 @@
 # Core dependencies
 numpy>=1.18.0
+PyYAML>=5.4.0
 
 # Optional triangulation backends
 # Uncomment based on your needs:

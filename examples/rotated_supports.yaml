@@ -1,0 +1,32 @@
+# 3D printing support structures
+# Rotated grid with large holes for material savings
+
+grid:
+  nx: 6       # 6x4 support grid
+  ny: 4
+  W: 60.0     # 60x40mm support area
+  H: 40.0
+
+orientation:
+  orientation: z        # Horizontal support plane
+  normal_sign: 1
+  rotate_deg: 30.0      # 30° rotation for better support angles
+
+inner_rectangle:
+  sx: 0.8               # Large holes (80% of cell)
+  sy: 0.8               # for material savings
+  inner_size_mode: relative
+
+placement:
+  origin: [30.0, 20.0, 5.0]  # Offset position
+  border_gap: 1.0            # 1mm gap between supports
+
+output:
+  out_dir: supports
+  cell_filename_outer: support_base_{i}_{j}.stl
+  cell_filename_ring: support_ring_{i}_{j}.stl
+  stl_ascii: false
+
+options:
+  verbose: true
+  info_only: false

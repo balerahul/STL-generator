@@ -41,7 +41,24 @@ pip install -e ".[dev]"
 
 ## Quick Start
 
+### YAML Configuration (Recommended)
+
+The easiest way to use the STL Grid Generator is with YAML configuration files:
+
+```bash
+# Generate example config file
+stl-grid-gen --generate-config my_config.yaml
+
+# Use the config file
+stl-grid-gen --config my_config.yaml
+
+# Override specific settings from command line
+stl-grid-gen --config my_config.yaml --out-dir custom_output --stl-ascii
+```
+
 ### Command Line Usage
+
+For simple cases, you can still use command-line arguments:
 
 ```bash
 # Generate a 3×2 grid with Z-normal orientation
@@ -50,12 +67,6 @@ stl-grid-gen --nx 3 --ny 2 --W 10 --H 8 --sx 0.7 --sy 0.7
 # Generate X-oriented grid with absolute hole sizes
 stl-grid-gen --nx 2 --ny 2 --W 5 --H 5 --orientation x \
              --sx 1.0 --sy 1.0 --inner-size-mode absolute
-
-# Generate with 45° rotation and custom origin
-stl-grid-gen --nx 4 --ny 3 --W 12 --H 9 --rotate-deg 45 --origin 5 3 2
-
-# Generate ASCII STL files with custom output directory
-stl-grid-gen --nx 2 --ny 2 --W 4 --H 4 --stl-ascii --out-dir my_parts
 ```
 
 ### Python API Usage
@@ -85,36 +96,75 @@ print(f"Outer size: {info['outer_size']}")
 print(f"Inner size: {info['inner_size']}")
 ```
 
-## Parameters
+## Configuration
 
-### Required Parameters
+### YAML Configuration Structure
 
+YAML files provide a clean, organized way to specify all parameters:
+
+```yaml
+grid:
+  nx: 3              # Grid dimensions
+  ny: 2
+  W: 15.0           # Total rectangle size
+  H: 10.0
+
+orientation:
+  orientation: z     # Plane normal: x, y, or z
+  normal_sign: 1     # Direction: 1 or -1
+  rotate_deg: 0.0    # In-plane rotation (degrees)
+
+inner_rectangle:
+  sx: 0.7           # Inner size parameters
+  sy: 0.7
+  inner_size_mode: relative  # 'relative' or 'absolute'
+
+placement:
+  origin: [0.0, 0.0, 0.0]   # World center coordinates
+  border_gap: 0.0           # Cell shrinkage amount
+
+output:
+  out_dir: output
+  cell_filename_outer: cell_{i}_{j}_outer.stl
+  cell_filename_ring: cell_{i}_{j}_ring.stl
+  stl_ascii: false          # true for ASCII, false for binary
+
+options:
+  verbose: false
+  info_only: false
+```
+
+### Command Line Parameters
+
+When using CLI arguments (all parameters have YAML equivalents):
+
+#### Required Parameters
 - `--nx`, `--ny`: Grid dimensions (integers ≥ 1)
 - `--W`, `--H`: Total rectangle size in local units (floats > 0)
 
-### Orientation & Rotation
+#### Configuration Options
+- `--config`, `-c`: YAML configuration file path
+- `--generate-config PATH`: Generate example YAML config and exit
 
+#### Orientation & Rotation
 - `--orientation {x,y,z}`: Plane normal direction (default: `z`)
 - `--normal-sign {1,-1}`: Normal vector sign (default: `1`)
 - `--rotate-deg FLOAT`: In-plane rotation in degrees (default: `0`)
 
-### Inner Rectangle (Hole) Parameters
-
+#### Inner Rectangle (Hole) Parameters
 - `--sx`, `--sy`: Inner rectangle size parameters (default: `0.5`)
 - `--inner-size-mode {relative,absolute}`: Size interpretation mode (default: `relative`)
   - `relative`: `sx`, `sy` are fractions of cell size (0 < value ≤ 1)
   - `absolute`: `sx`, `sy` are lengths in same units as `W`, `H`
 
-### Placement & Modification
-
+#### Placement & Modification
 - `--origin X Y Z`: World coordinates of rectangle center (default: `0 0 0`)
 - `--border-gap FLOAT`: Shrink each cell by this amount (default: `0`)
 
-### Output Options
-
+#### Output Options
 - `--out-dir PATH`: Output directory (default: `output`)
-- `--outer-pattern STR`: Filename pattern for outer rectangles (default: `cell_{i}_{j}_outer.stl`)
-- `--ring-pattern STR`: Filename pattern for rings (default: `cell_{i}_{j}_ring.stl`)
+- `--outer-pattern STR`: Filename pattern for outer rectangles
+- `--ring-pattern STR`: Filename pattern for rings
 - `--stl-ascii`: Generate ASCII STL files instead of binary
 
 ## Coordinate System
@@ -151,36 +201,74 @@ Custom filename patterns support `{i}` and `{j}` placeholders.
 
 ## Examples
 
-### Example 1: Laser Cutting Template
+The `examples/` directory contains ready-to-use YAML configuration files:
 
-Generate a 4×3 grid of 20×15mm rectangles with 14×10mm centered holes:
+### Example 1: Basic Grid
 
 ```bash
+# Generate example config
+stl-grid-gen --generate-config basic.yaml
+
+# Or use the provided example
+stl-grid-gen --config examples/basic_grid.yaml
+```
+
+**Configuration** (`examples/basic_grid.yaml`):
+```yaml
+grid:
+  nx: 3
+  ny: 2
+  W: 15.0
+  H: 10.0
+
+inner_rectangle:
+  sx: 0.7
+  sy: 0.7
+  inner_size_mode: relative
+```
+
+### Example 2: Laser Cutting Template
+
+```bash
+stl-grid-gen --config examples/laser_cutting.yaml
+```
+
+Creates a 4×3 grid of 20×15mm rectangles with 14×10mm centered holes in ASCII format.
+
+### Example 3: 3D Printing Supports
+
+```bash
+stl-grid-gen --config examples/rotated_supports.yaml
+```
+
+Generates a rotated 6×4 support grid with large holes for material savings.
+
+### Example 4: Multi-Orientation
+
+```bash
+stl-grid-gen --config examples/multi_orientation.yaml
+```
+
+Demonstrates X-orientation (YZ plane) with negative normal and rotation.
+
+### Command Line Examples
+
+For quick tasks, you can still use CLI arguments:
+
+```bash
+# Generate a 4×3 grid of 20×15mm rectangles with 14×10mm centered holes
 stl-grid-gen --nx 4 --ny 3 --W 80 --H 45 \
              --sx 14 --sy 10 --inner-size-mode absolute \
              --stl-ascii --out-dir laser_templates
-```
 
-### Example 2: 3D Printing Supports
-
-Create rotated support grid with relative hole sizes:
-
-```bash
+# Create rotated support grid with relative hole sizes
 stl-grid-gen --nx 6 --ny 4 --W 60 --H 40 \
              --rotate-deg 30 --sx 0.8 --sy 0.8 \
              --border-gap 0.5 --out-dir supports
-```
 
-### Example 3: Multiple Orientations
-
-Generate grids for all three orientations:
-
-```bash
-for orient in x y z; do
-  stl-grid-gen --nx 3 --ny 3 --W 30 --H 30 \
-               --orientation $orient \
-               --out-dir "output_${orient}"
-done
+# Mixed usage: config with CLI overrides
+stl-grid-gen --config examples/basic_grid.yaml \
+             --out-dir custom_output --stl-ascii
 ```
 
 ## Testing

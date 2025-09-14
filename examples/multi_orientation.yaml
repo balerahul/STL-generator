@@ -1,0 +1,32 @@
+# Multi-orientation example
+# Demonstrates X-orientation (YZ plane)
+
+grid:
+  nx: 2
+  ny: 3
+  W: 20.0     # Width along Y-axis (u direction)
+  H: 30.0     # Height along Z-axis (v direction)
+
+orientation:
+  orientation: x        # X-normal plane (YZ plane)
+  normal_sign: -1       # Negative X direction
+  rotate_deg: 45.0      # 45° in-plane rotation
+
+inner_rectangle:
+  sx: 8.0               # 8-unit holes
+  sy: 12.0              # 12-unit holes
+  inner_size_mode: absolute
+
+placement:
+  origin: [10.0, 0.0, 15.0]  # Positioned along X-axis
+  border_gap: 0.0
+
+output:
+  out_dir: x_oriented_parts
+  cell_filename_outer: x_part_{i}_{j}_solid.stl
+  cell_filename_ring: x_part_{i}_{j}_hollow.stl
+  stl_ascii: false
+
+options:
+  verbose: true
+  info_only: false
