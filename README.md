@@ -120,7 +120,7 @@ inner_rectangle:
   inner_size_mode: relative  # 'relative' or 'absolute'
 
 placement:
-  origin: [0.0, 0.0, 0.0]   # World center coordinates
+  origin: [0.0, 0.0, 0.0]   # World coordinates of rectangle center
   border_gap: 0.0           # Cell shrinkage amount
 
 output:
@@ -158,7 +158,7 @@ When using CLI arguments (all parameters have YAML equivalents):
   - `absolute`: `sx`, `sy` are lengths in same units as `W`, `H`
 
 #### Placement & Modification
-- `--origin X Y Z`: World coordinates of rectangle center (default: `0 0 0`)
+- `--origin X Y Z`: World coordinates of the entire rectangle's center point (default: `0 0 0`)
 - `--border-gap FLOAT`: Shrink each cell by this amount (default: `0`)
 
 #### Output Options
@@ -169,13 +169,35 @@ When using CLI arguments (all parameters have YAML equivalents):
 
 ## Coordinate System
 
+### Local Coordinate System
+
 The generator uses a local `(u, v)` coordinate system within the plane:
 
 - **Z-orientation** (`orientation='z'`): `u` = X-axis, `v` = Y-axis, normal = ±Z
 - **X-orientation** (`orientation='x'`): `u` = Y-axis, `v` = Z-axis, normal = ±X
 - **Y-orientation** (`orientation='y'`): `u` = X-axis, `v` = Z-axis, normal = ±Y
 
-World coordinates are computed as: `P = origin + u*û + v*ṽ`
+### Origin and Placement
+
+The `origin` parameter specifies where the **center of the entire rectangle** is placed in world coordinates.
+
+**Example**: For a 3×2 grid with `W=6, H=4`:
+```
+Local coordinates (u, v):
+   u = -3    0    +3
+v=+2  ┌─────┼─────┐
+      │     │     │
+v= 0  ├─────●─────┤  ← CENTER (0,0) in local coords
+      │     │     │
+v=-2  └─────┼─────┘
+
+World transformation: P = origin + u*û + v*ṽ
+```
+
+- Rectangle spans `u ∈ [-3, +3]` and `v ∈ [-2, +2]` in local coordinates
+- Center point `(u=0, v=0)` maps to `origin` in world coordinates
+- If `origin = [5, 10, 2]`, the center is placed at world coordinates `(5, 10, 2)`
+- Individual cells are positioned relative to this center point
 
 ## Output Files
 
