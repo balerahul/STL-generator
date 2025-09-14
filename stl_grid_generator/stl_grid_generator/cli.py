@@ -15,21 +15,31 @@ def create_parser():
         description='Generate rectangular STL grids with optional holes',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-Examples:
-  # Using YAML config file (recommended)
-  stl-grid-gen --config my_grid.yaml
+Getting Started:
+  # Generate an example config file
+  stl-grid-gen --generate-config my_config.yaml
 
-  # Using command line arguments
+  # Use the config file (recommended)
+  stl-grid-gen --config my_config.yaml
+
+  # Quick CLI usage
   stl-grid-gen --nx 3 --ny 2 --W 10 --H 8 --sx 0.7 --sy 0.7
 
-  # Generate X-oriented grid with absolute hole sizes
+Examples:
+  # Basic 3x2 grid with relative holes
+  stl-grid-gen --nx 3 --ny 2 --W 15 --H 10 --sx 0.7 --sy 0.7
+
+  # X-oriented grid with absolute hole sizes
   stl-grid-gen --nx 2 --ny 2 --W 5 --H 5 --orientation x --sx 1.0 --sy 1.0 --inner-size-mode absolute
 
-  # Generate with rotation and custom origin
-  stl-grid-gen --nx 4 --ny 3 --W 12 --H 9 --rotate-deg 45 --origin 5 3 2
+  # Config file with CLI overrides
+  stl-grid-gen --config examples/basic_grid.yaml --out-dir custom_output --stl-ascii
 
-  # Mixed usage: config file with CLI overrides
-  stl-grid-gen --config base_config.yaml --out-dir custom_output --stl-ascii
+  # Use pre-made examples
+  stl-grid-gen --config examples/laser_cutting.yaml
+  stl-grid-gen --config examples/rotated_supports.yaml
+
+For more information, see README.md and the examples/ directory.
         """
     )
 
@@ -238,6 +248,18 @@ def validate_args(args):
     """Validate command-line arguments."""
     errors = []
 
+    # Check required parameters are provided
+    required_params = [('nx', '--nx'), ('ny', '--ny'), ('W', '--W'), ('H', '--H')]
+    for param, flag in required_params:
+        value = getattr(args, param, None)
+        if value is None:
+            errors.append(f"Missing required parameter: {flag}")
+
+    # If we have missing required params, return early
+    if errors:
+        return errors
+
+    # Validate parameter values
     if args.nx < 1:
         errors.append("--nx must be >= 1")
     if args.ny < 1:
@@ -344,18 +366,26 @@ def main():
         print(f"Error merging configuration: {e}", file=sys.stderr)
         sys.exit(1)
 
-    # Validate final configuration
+    # Skip validation if we're only using config file or generating config
+    if not args.config and not args.generate_config:
+        # Pure CLI mode - need to validate args
+        errors = validate_args(args)
+        if errors:
+            print("Error: Invalid arguments:", file=sys.stderr)
+            for error in errors:
+                print(f"  {error}", file=sys.stderr)
+            print("\nFor help: stl-grid-gen --help")
+            print("For config file usage: stl-grid-gen --generate-config example.yaml")
+            sys.exit(1)
+
+    # Validate final configuration only if we have a config
     if args.config:
         errors = validate_config(merged_config)
-    else:
-        # Use old validation for pure CLI mode
-        errors = validate_args(args)
-
-    if errors:
-        print("Error: Invalid configuration:", file=sys.stderr)
-        for error in errors:
-            print(f"  {error}", file=sys.stderr)
-        sys.exit(1)
+        if errors:
+            print("Error: Invalid configuration:", file=sys.stderr)
+            for error in errors:
+                print(f"  {error}", file=sys.stderr)
+            sys.exit(1)
 
     try:
         # Create generator from merged config

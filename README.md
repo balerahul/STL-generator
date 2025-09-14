@@ -32,6 +32,24 @@ pip install -e ".[full]"
 pip install -e ".[dev]"
 ```
 
+After installation, the `stl-grid-gen` command will be available in your PATH. To verify:
+
+```bash
+# Check installation location
+which stl-grid-gen
+
+# Verify it works
+stl-grid-gen --help
+
+# Generate an example config
+stl-grid-gen --generate-config example.yaml
+```
+
+The binary is typically installed in:
+- **Virtual environment**: `venv/bin/stl-grid-gen` or `venv/Scripts/stl-grid-gen.exe` (Windows)
+- **System Python**: `/usr/local/bin/stl-grid-gen` or similar system PATH location
+- **Conda environment**: `conda_env/bin/stl-grid-gen`
+
 ## Dependencies
 
 - **Required**: `numpy >= 1.18.0`

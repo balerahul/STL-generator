@@ -1,6 +1,11 @@
 """Setup configuration for STL Grid Generator."""
 
+import os
+import sys
+import shutil
 from setuptools import setup, find_packages
+from setuptools.command.develop import develop
+from setuptools.command.install import install
 from pathlib import Path
 
 # Read README for long description
@@ -12,6 +17,60 @@ if readme_path.exists():
 
 # Read version from package
 version = "0.1.0"
+
+
+def print_installation_info():
+    """Print information about the installed command-line tool."""
+    print("\n" + "="*60)
+    print("🎉 STL Grid Generator installed successfully!")
+    print("="*60)
+
+    # Try to find the binary location
+    binary_path = shutil.which('stl-grid-gen')
+    if binary_path:
+        print(f"📍 Command-line tool installed at: {binary_path}")
+    else:
+        # Fallback to common locations
+        if hasattr(sys, 'real_prefix') or (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix):
+            # We're in a virtual environment
+            venv_bin = os.path.join(sys.prefix, 'bin', 'stl-grid-gen')
+            if os.name == 'nt':  # Windows
+                venv_bin = os.path.join(sys.prefix, 'Scripts', 'stl-grid-gen.exe')
+            print(f"📍 Command-line tool installed at: {venv_bin}")
+        else:
+            print("📍 Command-line tool installed in system PATH")
+
+    print("\n🚀 Quick start:")
+    print("   stl-grid-gen --help")
+    print("   stl-grid-gen --generate-config my_config.yaml")
+    print("   stl-grid-gen --config my_config.yaml")
+
+    print("\n📚 Documentation and examples:")
+    print("   README.md - Full documentation")
+    print("   examples/ - Sample configuration files")
+
+    print("\n✨ Features:")
+    print("   • YAML configuration files (recommended)")
+    print("   • Multiple orientations (X, Y, Z planes)")
+    print("   • Relative and absolute inner hole sizing")
+    print("   • ASCII and binary STL output")
+    print("   • Command-line argument overrides")
+
+    print("="*60 + "\n")
+
+
+class PostDevelopCommand(develop):
+    """Post-installation for development mode."""
+    def run(self):
+        develop.run(self)
+        print_installation_info()
+
+
+class PostInstallCommand(install):
+    """Post-installation for install mode."""
+    def run(self):
+        install.run(self)
+        print_installation_info()
 
 setup(
     name="stl-grid-generator",
@@ -59,6 +118,10 @@ setup(
         "console_scripts": [
             "stl-grid-gen=stl_grid_generator.cli:main",
         ],
+    },
+    cmdclass={
+        'develop': PostDevelopCommand,
+        'install': PostInstallCommand,
     },
     keywords="stl mesh 3d grid generator cad manufacturing",
     project_urls={
