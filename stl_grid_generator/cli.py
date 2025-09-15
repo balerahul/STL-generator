@@ -89,8 +89,8 @@ For more information, see README.md and the examples/ directory.
     # Output options
     parser.add_argument('--out-dir', type=str, default='output',
                        help='Output directory (default: output)')
-    parser.add_argument('--outer-pattern', type=str, default='cell_{i}_{j}_outer.stl',
-                       help='Filename pattern for outer rectangles (default: cell_{i}_{j}_outer.stl)')
+    parser.add_argument('--inner-pattern', type=str, default='cell_{i}_{j}_inner.stl',
+                       help='Filename pattern for inner rectangles (default: cell_{i}_{j}_inner.stl)')
     parser.add_argument('--ring-pattern', type=str, default='cell_{i}_{j}_ring.stl',
                        help='Filename pattern for rings (default: cell_{i}_{j}_ring.stl)')
     parser.add_argument('--stl-ascii', action='store_true',
@@ -142,7 +142,7 @@ def generate_example_config(output_path: str):
         },
         'output': {
             'out_dir': 'output',
-            'cell_filename_outer': 'cell_{i}_{j}_outer.stl',
+            'cell_filename_inner': 'cell_{i}_{j}_inner.stl',
             'cell_filename_ring': 'cell_{i}_{j}_ring.stl',
             'stl_ascii': False,
         },
@@ -184,8 +184,8 @@ def merge_config_and_args(config: Dict[str, Any], args: argparse.Namespace) -> D
     for key, value in arg_dict.items():
         if value is not None:
             # Convert argument names to config names
-            if key == 'outer_pattern':
-                merged['cell_filename_outer'] = value
+            if key == 'inner_pattern':
+                merged['cell_filename_inner'] = value
             elif key == 'ring_pattern':
                 merged['cell_filename_ring'] = value
             elif key == 'stl_ascii':
@@ -233,11 +233,11 @@ def validate_config(config: Dict[str, Any]) -> list:
             errors.append("For relative mode, sy must be <= 1")
 
     # Check filename patterns
-    outer_pattern = config.get('cell_filename_outer', 'cell_{i}_{j}_outer.stl')
+    inner_pattern = config.get('cell_filename_inner', 'cell_{i}_{j}_inner.stl')
     ring_pattern = config.get('cell_filename_ring', 'cell_{i}_{j}_ring.stl')
 
-    if '{i}' not in outer_pattern or '{j}' not in outer_pattern:
-        errors.append("cell_filename_outer must contain {i} and {j} placeholders")
+    if '{i}' not in inner_pattern or '{j}' not in inner_pattern:
+        errors.append("cell_filename_inner must contain {i} and {j} placeholders")
     if '{i}' not in ring_pattern or '{j}' not in ring_pattern:
         errors.append("cell_filename_ring must contain {i} and {j} placeholders")
 
@@ -282,8 +282,8 @@ def validate_args(args):
             errors.append("For relative mode, --sy must be <= 1")
 
     # Check if patterns contain required placeholders
-    if '{i}' not in args.outer_pattern or '{j}' not in args.outer_pattern:
-        errors.append("--outer-pattern must contain {i} and {j} placeholders")
+    if '{i}' not in args.inner_pattern or '{j}' not in args.inner_pattern:
+        errors.append("--inner-pattern must contain {i} and {j} placeholders")
     if '{i}' not in args.ring_pattern or '{j}' not in args.ring_pattern:
         errors.append("--ring-pattern must contain {i} and {j} placeholders")
 
@@ -404,7 +404,7 @@ def main():
                 rotate_deg=merged_config.get('rotate_deg', 0.0),
                 border_gap=merged_config.get('border_gap', 0.0),
                 out_dir=merged_config.get('out_dir', 'output'),
-                cell_filename_outer=merged_config.get('cell_filename_outer', 'cell_{i}_{j}_outer.stl'),
+                cell_filename_inner=merged_config.get('cell_filename_inner', 'cell_{i}_{j}_inner.stl'),
                 cell_filename_ring=merged_config.get('cell_filename_ring', 'cell_{i}_{j}_ring.stl'),
                 stl_ascii=merged_config.get('stl_ascii', False)
             )
@@ -421,7 +421,7 @@ def main():
                 rotate_deg=args.rotate_deg,
                 border_gap=args.border_gap,
                 out_dir=args.out_dir,
-                cell_filename_outer=args.outer_pattern,
+                cell_filename_inner=args.inner_pattern,
                 cell_filename_ring=args.ring_pattern,
                 stl_ascii=args.stl_ascii
             )
@@ -456,14 +456,14 @@ def main():
             output_dir = Path(out_dir)
             nx = merged_config['nx'] if args.config else args.nx
             ny = merged_config['ny'] if args.config else args.ny
-            outer_pattern = merged_config.get('cell_filename_outer', 'cell_{i}_{j}_outer.stl') if args.config else args.outer_pattern
+            inner_pattern = merged_config.get('cell_filename_inner', 'cell_{i}_{j}_inner.stl') if args.config else args.inner_pattern
             ring_pattern = merged_config.get('cell_filename_ring', 'cell_{i}_{j}_ring.stl') if args.config else args.ring_pattern
 
             for i in range(nx):
                 for j in range(ny):
-                    outer_file = output_dir / outer_pattern.format(i=i, j=j)
+                    inner_file = output_dir / inner_pattern.format(i=i, j=j)
                     ring_file = output_dir / ring_pattern.format(i=i, j=j)
-                    print(f"  {outer_file}")
+                    print(f"  {inner_file}")
                     print(f"  {ring_file}")
 
     except Exception as e:

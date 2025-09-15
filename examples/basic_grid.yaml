@@ -23,7 +23,7 @@ placement:
 
 output:
   out_dir: output
-  cell_filename_outer: cell_{i}_{j}_outer.stl
+  cell_filename_inner: cell_{i}_{j}_inner.stl
   cell_filename_ring: cell_{i}_{j}_ring.stl
   stl_ascii: false         # Binary STL format
 

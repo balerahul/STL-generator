@@ -27,7 +27,7 @@ class STLGridGenerator:
                  rotate_deg: float = 0.0,
                  border_gap: float = 0.0,
                  out_dir: str = 'output',
-                 cell_filename_outer: str = 'cell_{i}_{j}_inner.stl',
+                 cell_filename_inner: str = 'cell_{i}_{j}_inner.stl',
                  cell_filename_ring: str = 'cell_{i}_{j}_ring.stl',
                  stl_ascii: bool = False):
         """
@@ -44,7 +44,7 @@ class STLGridGenerator:
             rotate_deg: In-plane rotation in degrees
             border_gap: Gap to shrink cell bounds
             out_dir: Output directory
-            cell_filename_outer: Filename pattern for inner rectangles
+            cell_filename_inner: Filename pattern for inner rectangles
             cell_filename_ring: Filename pattern for rings
             stl_ascii: True for ASCII STL, False for binary
         """
@@ -57,7 +57,7 @@ class STLGridGenerator:
         self.inner_size_mode = inner_size_mode
         self.border_gap = border_gap
         self.out_dir = Path(out_dir)
-        self.cell_filename_outer = cell_filename_outer
+        self.cell_filename_inner = cell_filename_inner
         self.cell_filename_ring = cell_filename_ring
         self.stl_ascii = stl_ascii
 
@@ -98,7 +98,7 @@ class STLGridGenerator:
         for i in range(self.nx):
             for j in range(self.ny):
                 # Generate inner rectangle
-                self._generate_cell_outer(i, j)
+                self._generate_cell_inner(i, j)
                 files_generated += 1
 
                 # Generate ring
@@ -107,7 +107,7 @@ class STLGridGenerator:
 
         return files_generated
 
-    def _generate_cell_outer(self, i: int, j: int):
+    def _generate_cell_inner(self, i: int, j: int):
         """Generate inner rectangle STL for cell (i, j)."""
         # Compute cell bounds
         u0, u1, v0, v1 = compute_cell_bounds(i, j, self.nx, self.ny, self.W, self.H, self.border_gap)
@@ -139,7 +139,7 @@ class STLGridGenerator:
         triangles = ensure_consistent_winding(triangles, vertices_3d, target_normal)
 
         # Write STL file
-        filename = self.cell_filename_outer.format(i=i, j=j)
+        filename = self.cell_filename_inner.format(i=i, j=j)
         filepath = self.out_dir / filename
         self._write_stl(vertices_3d, triangles, filepath, target_normal)
 
