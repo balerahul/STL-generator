@@ -113,25 +113,30 @@ def _triangulate_with_trimesh(outer_vertices: np.ndarray, inner_vertices_cw: np.
 def _triangulate_ring_manual(outer_vertices: np.ndarray, inner_vertices_cw: np.ndarray) -> np.ndarray:
     """
     Manual triangulation for a rectangle with rectangular hole.
-    Creates triangles that form a frame between outer and inner boundaries.
+    Creates 4 rectangular strips around the hole.
     """
     triangles = []
 
-    # For each side of the rectangle, create two triangles connecting outer to inner
-    # This creates a "frame" without filling the hole
+    # Outer: 0=BL, 1=BR, 2=TR, 3=TL (CCW)
+    # Inner: 4=TL, 5=TR, 6=BR, 7=BL (CW - reversed)
 
-    for i in range(4):
-        next_i = (i + 1) % 4
+    # Create 4 strips: bottom, right, top, left
 
-        # Outer vertices: 0,1,2,3 (CCW)
-        # Inner vertices: 4,5,6,7 (CW, so reversed order)
+    # Bottom strip: outer[0,1] to inner[7,6]
+    triangles.append([0, 1, 7])  # outer BL -> outer BR -> inner BL
+    triangles.append([1, 6, 7])  # outer BR -> inner BR -> inner BL
 
-        # For each edge, create two triangles that form the frame segment
-        # Triangle 1: outer[i] -> inner[i] -> outer[next_i]
-        triangles.append([i, 4 + i, next_i])
+    # Right strip: outer[1,2] to inner[6,5]
+    triangles.append([1, 2, 6])  # outer BR -> outer TR -> inner BR
+    triangles.append([2, 5, 6])  # outer TR -> inner TR -> inner BR
 
-        # Triangle 2: outer[next_i] -> inner[i] -> inner[next_i]
-        triangles.append([next_i, 4 + i, 4 + next_i])
+    # Top strip: outer[2,3] to inner[5,4]
+    triangles.append([2, 3, 5])  # outer TR -> outer TL -> inner TR
+    triangles.append([3, 4, 5])  # outer TL -> inner TL -> inner TR
+
+    # Left strip: outer[3,0] to inner[4,7]
+    triangles.append([3, 0, 4])  # outer TL -> outer BL -> inner TL
+    triangles.append([0, 7, 4])  # outer BL -> inner BL -> inner TL
 
     return np.array(triangles)
 
