@@ -32,17 +32,15 @@ pip install -e ".[full]"
 pip install -e ".[dev]"
 ```
 
-After installation, the `stl-grid-gen` command will be available in your PATH. To verify:
+After installation, the `stl-grid-gen` command will be available in the bin directory:
 
 ```bash
-# Check installation location
-which stl-grid-gen
 
 # Verify it works
-stl-grid-gen --help
+./bin/stl-grid-gen --help
 
 # Generate an example config
-stl-grid-gen --generate-config example.yaml
+./bin/stl-grid-gen --generate-config example.yaml
 ```
 
 The binary is typically installed in:

@@ -3,6 +3,7 @@
 import os
 import sys
 import shutil
+import stat
 from setuptools import setup, find_packages
 from setuptools.command.develop import develop
 from setuptools.command.install import install
@@ -19,16 +20,50 @@ if readme_path.exists():
 version = "0.1.0"
 
 
+def create_local_binary():
+    """Create a local binary in the bin/ directory."""
+    bin_dir = Path(__file__).parent / "bin"
+    bin_dir.mkdir(exist_ok=True)
+
+    binary_name = "stl-grid-gen"
+    if os.name == 'nt':  # Windows
+        binary_name += ".exe"
+
+    binary_path = bin_dir / binary_name
+
+    # Create a wrapper script using the current Python interpreter
+    script_content = f"""#!{sys.executable}
+import sys
+from stl_grid_generator.cli import main
+
+if __name__ == "__main__":
+    main()
+"""
+
+    with open(binary_path, 'w') as f:
+        f.write(script_content)
+
+    # Make it executable
+    st = os.stat(binary_path)
+    os.chmod(binary_path, st.st_mode | stat.S_IEXEC)
+
+    return binary_path
+
+
 def print_installation_info():
     """Print information about the installed command-line tool."""
     print("\n" + "="*60)
     print("🎉 STL Grid Generator installed successfully!")
     print("="*60)
 
-    # Try to find the binary location
+    # Create local binary
+    local_binary = create_local_binary()
+    print(f"📍 Local binary created at: {local_binary}")
+
+    # Try to find the system binary location
     binary_path = shutil.which('stl-grid-gen')
     if binary_path:
-        print(f"📍 Command-line tool installed at: {binary_path}")
+        print(f"📍 System binary installed at: {binary_path}")
     else:
         # Fallback to common locations
         if hasattr(sys, 'real_prefix') or (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix):
@@ -36,12 +71,13 @@ def print_installation_info():
             venv_bin = os.path.join(sys.prefix, 'bin', 'stl-grid-gen')
             if os.name == 'nt':  # Windows
                 venv_bin = os.path.join(sys.prefix, 'Scripts', 'stl-grid-gen.exe')
-            print(f"📍 Command-line tool installed at: {venv_bin}")
+            print(f"📍 System binary installed at: {venv_bin}")
         else:
-            print("📍 Command-line tool installed in system PATH")
+            print("📍 System binary installed in PATH")
 
     print("\n🚀 Quick start:")
     print("   stl-grid-gen --help")
+    print("   ./bin/stl-grid-gen --help  (local binary)")
     print("   stl-grid-gen --generate-config my_config.yaml")
     print("   stl-grid-gen --config my_config.yaml")
 
