@@ -27,8 +27,8 @@ class STLGridGenerator:
                  rotate_deg: float = 0.0,
                  border_gap: float = 0.0,
                  out_dir: str = 'output',
-                 cell_filename_inner: str = 'cell_{i}_{j}_inner.stl',
-                 cell_filename_ring: str = 'cell_{i}_{j}_ring.stl',
+                 cell_filename_inner: str = 'cell_inner_x{i}_y{j}.stl',
+                 cell_filename_ring: str = 'cell_ring_x{i}_y{j}.stl',
                  stl_ascii: bool = False):
         """
         Initialize STL grid generator.
@@ -139,7 +139,7 @@ class STLGridGenerator:
         triangles = ensure_consistent_winding(triangles, vertices_3d, target_normal)
 
         # Write STL file
-        filename = self.cell_filename_inner.format(i=i, j=j)
+        filename = self.cell_filename_inner.format(i=i+1, j=j+1)
         filepath = self.out_dir / filename
         self._write_stl(vertices_3d, triangles, filepath, target_normal)
 
@@ -176,7 +176,7 @@ class STLGridGenerator:
         triangles = ensure_consistent_winding(triangles, vertices_3d, target_normal)
 
         # Write STL file
-        filename = self.cell_filename_ring.format(i=i, j=j)
+        filename = self.cell_filename_ring.format(i=i+1, j=j+1)
         filepath = self.out_dir / filename
         self._write_stl(vertices_3d, triangles, filepath, target_normal)
 

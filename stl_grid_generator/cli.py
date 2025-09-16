@@ -89,10 +89,10 @@ For more information, see README.md and the examples/ directory.
     # Output options
     parser.add_argument('--out-dir', type=str, default='output',
                        help='Output directory (default: output)')
-    parser.add_argument('--inner-pattern', type=str, default='cell_{i}_{j}_inner.stl',
-                       help='Filename pattern for inner rectangles (default: cell_{i}_{j}_inner.stl)')
-    parser.add_argument('--ring-pattern', type=str, default='cell_{i}_{j}_ring.stl',
-                       help='Filename pattern for rings (default: cell_{i}_{j}_ring.stl)')
+    parser.add_argument('--inner-pattern', type=str, default='cell_inner_x{i}_y{j}.stl',
+                       help='Filename pattern for inner rectangles (default: cell_inner_x{i}_y{j}.stl)')
+    parser.add_argument('--ring-pattern', type=str, default='cell_ring_x{i}_y{j}.stl',
+                       help='Filename pattern for rings (default: cell_ring_x{i}_y{j}.stl)')
     parser.add_argument('--stl-ascii', action='store_true',
                        help='Generate ASCII STL files (default: binary)')
 
@@ -142,8 +142,8 @@ def generate_example_config(output_path: str):
         },
         'output': {
             'out_dir': 'output',
-            'cell_filename_inner': 'cell_{i}_{j}_inner.stl',
-            'cell_filename_ring': 'cell_{i}_{j}_ring.stl',
+            'cell_filename_inner': 'cell_inner_x{i}_y{j}.stl',
+            'cell_filename_ring': 'cell_ring_x{i}_y{j}.stl',
             'stl_ascii': False,
         },
         'options': {
@@ -233,8 +233,8 @@ def validate_config(config: Dict[str, Any]) -> list:
             errors.append("For relative mode, sy must be <= 1")
 
     # Check filename patterns
-    inner_pattern = config.get('cell_filename_inner', 'cell_{i}_{j}_inner.stl')
-    ring_pattern = config.get('cell_filename_ring', 'cell_{i}_{j}_ring.stl')
+    inner_pattern = config.get('cell_filename_inner', 'cell_inner_x{i}_y{j}.stl')
+    ring_pattern = config.get('cell_filename_ring', 'cell_ring_x{i}_y{j}.stl')
 
     if '{i}' not in inner_pattern or '{j}' not in inner_pattern:
         errors.append("cell_filename_inner must contain {i} and {j} placeholders")
@@ -404,8 +404,8 @@ def main():
                 rotate_deg=merged_config.get('rotate_deg', 0.0),
                 border_gap=merged_config.get('border_gap', 0.0),
                 out_dir=merged_config.get('out_dir', 'output'),
-                cell_filename_inner=merged_config.get('cell_filename_inner', 'cell_{i}_{j}_inner.stl'),
-                cell_filename_ring=merged_config.get('cell_filename_ring', 'cell_{i}_{j}_ring.stl'),
+                cell_filename_inner=merged_config.get('cell_filename_inner', 'cell_inner_x{i}_y{j}.stl'),
+                cell_filename_ring=merged_config.get('cell_filename_ring', 'cell_ring_x{i}_y{j}.stl'),
                 stl_ascii=merged_config.get('stl_ascii', False)
             )
         else:
@@ -456,8 +456,8 @@ def main():
             output_dir = Path(out_dir)
             nx = merged_config['nx'] if args.config else args.nx
             ny = merged_config['ny'] if args.config else args.ny
-            inner_pattern = merged_config.get('cell_filename_inner', 'cell_{i}_{j}_inner.stl') if args.config else args.inner_pattern
-            ring_pattern = merged_config.get('cell_filename_ring', 'cell_{i}_{j}_ring.stl') if args.config else args.ring_pattern
+            inner_pattern = merged_config.get('cell_filename_inner', 'cell_inner_x{i}_y{j}.stl') if args.config else args.inner_pattern
+            ring_pattern = merged_config.get('cell_filename_ring', 'cell_ring_x{i}_y{j}.stl') if args.config else args.ring_pattern
 
             for i in range(nx):
                 for j in range(ny):
