@@ -2,19 +2,19 @@
 # Generate a simple rectangular grid with relative hole sizes
 
 grid:
-  nx: 2      # 3 cells along u-axis
-  ny: 2      # 2 cells along v-axis
-  W: 10.0    # Total width: 15 units
-  H: 10.0    # Total height: 10 units
+  nx: 12      # 3 cells along u-axis
+  ny: 8      # 2 cells along v-axis
+  W: 12.0    # Total width: 15 units
+  H: 8.0    # Total height: 10 units
 
 orientation:
   orientation: z        # Z-normal plane (XY plane)
-  normal_sign: 1        # Positive Z direction
+  normal_sign: -1        # Positive Z direction
   rotate_deg: 0.0       # No rotation
 
 inner_rectangle:
-  sx: 0.5               # Inner hole is 70% of cell width
-  sy: 0.7               # Inner hole is 70% of cell height
+  sx: 0.35               # Inner hole is 70% of cell width
+  sy: 0.35               # Inner hole is 70% of cell height
   inner_size_mode: relative
 
 placement:
@@ -22,9 +22,9 @@ placement:
   border_gap: 0.0          # No border gap
 
 output:
-  out_dir: output
-  cell_filename_outer: cell_{i}_{j}_outer.stl
-  cell_filename_ring: cell_{i}_{j}_ring.stl
+  out_dir: acinlet-stls
+  cell_filename_inner: acinlet_x{i}_y{j}.stl
+  cell_filename_ring: acinlet_ring_x{i}_y{j}.stl
   stl_ascii: false         # Binary STL format
 
 options:

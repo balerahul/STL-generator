@@ -87,11 +87,11 @@ For more information, see README.md and the examples/ directory.
                        help='Gap to shrink cell bounds (default: 0)')
 
     # Output options
-    parser.add_argument('--out-dir', type=str, default='output',
+    parser.add_argument('--out-dir', type=str, default=None,
                        help='Output directory (default: output)')
-    parser.add_argument('--inner-pattern', type=str, default='cell_inner_x{i}_y{j}.stl',
+    parser.add_argument('--inner-pattern', type=str, default=None,
                        help='Filename pattern for inner rectangles (default: cell_inner_x{i}_y{j}.stl)')
-    parser.add_argument('--ring-pattern', type=str, default='cell_ring_x{i}_y{j}.stl',
+    parser.add_argument('--ring-pattern', type=str, default=None,
                        help='Filename pattern for rings (default: cell_ring_x{i}_y{j}.stl)')
     parser.add_argument('--stl-ascii', action='store_true',
                        help='Generate ASCII STL files (default: binary)')
@@ -193,6 +193,14 @@ def merge_config_and_args(config: Dict[str, Any], args: argparse.Namespace) -> D
             else:
                 merged[key] = value
 
+    # Set defaults for filename patterns and output dir if not provided in config or args
+    if 'cell_filename_inner' not in merged:
+        merged['cell_filename_inner'] = 'cell_inner_x{i}_y{j}.stl'
+    if 'cell_filename_ring' not in merged:
+        merged['cell_filename_ring'] = 'cell_ring_x{i}_y{j}.stl'
+    if 'out_dir' not in merged:
+        merged['out_dir'] = 'output'
+
     return merged
 
 
@@ -281,10 +289,13 @@ def validate_args(args):
         if args.sy > 1:
             errors.append("For relative mode, --sy must be <= 1")
 
-    # Check if patterns contain required placeholders
-    if '{i}' not in args.inner_pattern or '{j}' not in args.inner_pattern:
+    # Check if patterns contain required placeholders (use defaults if None)
+    inner_pattern = args.inner_pattern if args.inner_pattern is not None else 'cell_inner_x{i}_y{j}.stl'
+    ring_pattern = args.ring_pattern if args.ring_pattern is not None else 'cell_ring_x{i}_y{j}.stl'
+
+    if '{i}' not in inner_pattern or '{j}' not in inner_pattern:
         errors.append("--inner-pattern must contain {i} and {j} placeholders")
-    if '{i}' not in args.ring_pattern or '{j}' not in args.ring_pattern:
+    if '{i}' not in ring_pattern or '{j}' not in ring_pattern:
         errors.append("--ring-pattern must contain {i} and {j} placeholders")
 
     if errors:
@@ -420,9 +431,9 @@ def main():
                 origin=tuple(args.origin),
                 rotate_deg=args.rotate_deg,
                 border_gap=args.border_gap,
-                out_dir=args.out_dir,
-                cell_filename_inner=args.inner_pattern,
-                cell_filename_ring=args.ring_pattern,
+                out_dir=args.out_dir if args.out_dir is not None else 'output',
+                cell_filename_inner=args.inner_pattern if args.inner_pattern is not None else 'cell_inner_x{i}_y{j}.stl',
+                cell_filename_ring=args.ring_pattern if args.ring_pattern is not None else 'cell_ring_x{i}_y{j}.stl',
                 stl_ascii=args.stl_ascii
             )
 
@@ -456,8 +467,8 @@ def main():
             output_dir = Path(out_dir)
             nx = merged_config['nx'] if args.config else args.nx
             ny = merged_config['ny'] if args.config else args.ny
-            inner_pattern = merged_config.get('cell_filename_inner', 'cell_inner_x{i}_y{j}.stl') if args.config else args.inner_pattern
-            ring_pattern = merged_config.get('cell_filename_ring', 'cell_ring_x{i}_y{j}.stl') if args.config else args.ring_pattern
+            inner_pattern = merged_config.get('cell_filename_inner', 'cell_inner_x{i}_y{j}.stl') if args.config else (args.inner_pattern if args.inner_pattern is not None else 'cell_inner_x{i}_y{j}.stl')
+            ring_pattern = merged_config.get('cell_filename_ring', 'cell_ring_x{i}_y{j}.stl') if args.config else (args.ring_pattern if args.ring_pattern is not None else 'cell_ring_x{i}_y{j}.stl')
 
             for i in range(nx):
                 for j in range(ny):
