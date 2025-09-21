@@ -13,8 +13,8 @@ orientation:
   rotate_deg: 0.0       # No rotation
 
 inner_rectangle:
-  sx: 0.35               # Inner hole is 70% of cell width
-  sy: 0.35               # Inner hole is 70% of cell height
+  sx: 0.0              # Inner hole is 70% of cell width
+  sy: 0.0               # Inner hole is 70% of cell height
   inner_size_mode: relative
 
 placement:
@@ -22,9 +22,9 @@ placement:
   border_gap: 0.0          # No border gap
 
 output:
-  out_dir: acinlet-stls
-  cell_filename_inner: acinlet_x{i}_y{j}.stl
-  cell_filename_ring: acinlet_ring_x{i}_y{j}.stl
+  out_dir: ciel-stls
+  cell_filename_inner: null_x{i}_y{j}.stl
+  cell_filename_ring: ceil_x{i}_y{j}.stl
   stl_ascii: false         # Binary STL format
 
 options:

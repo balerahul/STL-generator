@@ -70,9 +70,9 @@ For more information, see README.md and the examples/ directory.
                        help='In-plane rotation in degrees (default: 0)')
 
     # Inner rectangle (hole) parameters
-    parser.add_argument('--sx', type=float, default=0.5,
+    parser.add_argument('--sx', type=float, default=None,
                        help='Inner rectangle u-size parameter (default: 0.5)')
-    parser.add_argument('--sy', type=float, default=0.5,
+    parser.add_argument('--sy', type=float, default=None,
                        help='Inner rectangle v-size parameter (default: 0.5)')
     parser.add_argument('--inner-size-mode', choices=['relative', 'absolute'], default='relative',
                        help='Inner size mode: relative (fraction) or absolute (units) (default: relative)')
@@ -193,13 +193,17 @@ def merge_config_and_args(config: Dict[str, Any], args: argparse.Namespace) -> D
             else:
                 merged[key] = value
 
-    # Set defaults for filename patterns and output dir if not provided in config or args
+    # Set defaults for filename patterns, output dir, and sx/sy if not provided in config or args
     if 'cell_filename_inner' not in merged:
         merged['cell_filename_inner'] = 'cell_inner_x{i}_y{j}.stl'
     if 'cell_filename_ring' not in merged:
         merged['cell_filename_ring'] = 'cell_ring_x{i}_y{j}.stl'
     if 'out_dir' not in merged:
         merged['out_dir'] = 'output'
+    if 'sx' not in merged:
+        merged['sx'] = 0.5
+    if 'sy' not in merged:
+        merged['sy'] = 0.5
 
     return merged
 
@@ -226,10 +230,10 @@ def validate_config(config: Dict[str, Any]) -> list:
         errors.append("W must be > 0")
     if config.get('H', 1) <= 0:
         errors.append("H must be > 0")
-    if config.get('sx', 1) <= 0:
-        errors.append("sx must be > 0")
-    if config.get('sy', 1) <= 0:
-        errors.append("sy must be > 0")
+    if config.get('sx', 1) < 0:
+        errors.append("sx must be >= 0")
+    if config.get('sy', 1) < 0:
+        errors.append("sy must be >= 0")
     if config.get('border_gap', 0) < 0:
         errors.append("border_gap must be >= 0")
 
@@ -276,10 +280,10 @@ def validate_args(args):
         errors.append("--W must be > 0")
     if args.H <= 0:
         errors.append("--H must be > 0")
-    if args.sx <= 0:
-        errors.append("--sx must be > 0")
-    if args.sy <= 0:
-        errors.append("--sy must be > 0")
+    if args.sx < 0:
+        errors.append("--sx must be >= 0")
+    if args.sy < 0:
+        errors.append("--sy must be >= 0")
     if args.border_gap < 0:
         errors.append("--border-gap must be >= 0")
 
@@ -328,7 +332,13 @@ def print_configuration(config: Dict[str, Any], generator):
     print(f"Output directory:   {out_dir}")
     stl_ascii = config.get('stl_ascii', False)
     print(f"STL format:         {'ASCII' if stl_ascii else 'Binary'}")
-    print(f"Files to generate:  {2 * config['nx'] * config['ny']}")
+    # Calculate number of files to generate
+    total_cells = config['nx'] * config['ny']
+    if config.get('sx', 0.5) > 0 and config.get('sy', 0.5) > 0:
+        files_per_cell = 2  # inner + ring
+    else:
+        files_per_cell = 1  # only ring (solid rectangle)
+    print(f"Files to generate:  {files_per_cell * total_cells}")
     print()
 
     # Show sample cell info
@@ -426,7 +436,8 @@ def main():
                 W=args.W, H=args.H,
                 orientation=args.orientation,
                 normal_sign=args.normal_sign,
-                sx=args.sx, sy=args.sy,
+                sx=args.sx if args.sx is not None else 0.5,
+                sy=args.sy if args.sy is not None else 0.5,
                 inner_size_mode=args.inner_size_mode,
                 origin=tuple(args.origin),
                 rotate_deg=args.rotate_deg,

@@ -77,8 +77,8 @@ class STLGridGenerator:
             raise ValueError("nx and ny must be >= 1")
         if self.W <= 0 or self.H <= 0:
             raise ValueError("W and H must be > 0")
-        if self.sx <= 0 or self.sy <= 0:
-            raise ValueError("sx and sy must be > 0")
+        if self.sx < 0 or self.sy < 0:
+            raise ValueError("sx and sy must be >= 0")
         if self.inner_size_mode not in ['relative', 'absolute']:
             raise ValueError("inner_size_mode must be 'relative' or 'absolute'")
         if self.inner_size_mode == 'relative' and (self.sx > 1 or self.sy > 1):
@@ -97,9 +97,10 @@ class STLGridGenerator:
 
         for i in range(self.nx):
             for j in range(self.ny):
-                # Generate inner rectangle
-                self._generate_cell_inner(i, j)
-                files_generated += 1
+                # Only generate inner rectangle if sx and sy are > 0
+                if self.sx > 0 and self.sy > 0:
+                    self._generate_cell_inner(i, j)
+                    files_generated += 1
 
                 # Generate ring
                 self._generate_cell_ring(i, j)
@@ -158,12 +159,17 @@ class STLGridGenerator:
             outer_half_width, outer_half_height, self.sx, self.sy, self.inner_size_mode
         )
 
-        # Create vertices
-        outer_vertices_2d = create_rectangle_vertices(outer_center, outer_half_width, outer_half_height)
-        inner_vertices_2d = create_rectangle_vertices(outer_center, inner_half_width, inner_half_height)
-
-        # Triangulate ring
-        combined_vertices_2d, triangles = triangulate_ring(outer_vertices_2d, inner_vertices_2d)
+        # Create vertices and triangulate
+        if self.sx == 0 or self.sy == 0:
+            # Generate solid rectangle (no hole)
+            vertices_2d = create_rectangle_vertices(outer_center, outer_half_width, outer_half_height)
+            triangles = triangulate_rectangle(vertices_2d)
+            combined_vertices_2d = vertices_2d
+        else:
+            # Generate ring (rectangle with hole)
+            outer_vertices_2d = create_rectangle_vertices(outer_center, outer_half_width, outer_half_height)
+            inner_vertices_2d = create_rectangle_vertices(outer_center, inner_half_width, inner_half_height)
+            combined_vertices_2d, triangles = triangulate_ring(outer_vertices_2d, inner_vertices_2d)
 
         # Convert to 3D world coordinates
         vertices_3d = np.array([
