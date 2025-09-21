@@ -21,6 +21,28 @@ A Python package for generating rectangular STL grids with optional centered rec
 
 ## Installation
 
+### Option 1: Direct Usage (No Installation Required)
+
+You can run the tool directly from the source directory without installation:
+
+```bash
+# Clone or download the repository, then:
+cd STL-generator
+
+# Install only the required dependencies
+pip install numpy PyYAML
+
+# Run directly using main.py
+python main.py --help
+python main.py --config examples/basic_grid.yaml
+
+# Or make it executable and run directly
+chmod +x main.py
+./main.py --config examples/basic_grid.yaml
+```
+
+### Option 2: Full Installation
+
 ```bash
 # Basic installation
 pip install -e .
